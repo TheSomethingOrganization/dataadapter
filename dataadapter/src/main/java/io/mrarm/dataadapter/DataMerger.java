@@ -1,19 +1,57 @@
 package io.mrarm.dataadapter;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class DataMerger extends BaseDataFragment {
 
-    private final List<DataFragment> fragments = new ArrayList<>();
-    private final List<ChildListener> fragmentListeners = new ArrayList<>();
-    private final List<Integer> startIndexes = new ArrayList<>();
-    private int firstInvalidStartIndex = 1;
+    private List<DataFragment> fragments;
+    private List<ChildListener> fragmentListeners;
+    private List<Integer> startIndexes;
+    private int firstInvalidStartIndex;
     private int totalItemCount = 0;
 
+    public DataMerger(List<DataFragment> fragments) {
+        setSource(fragments);
+    }
+
     public DataMerger() {
+        this(new ArrayList<>());
+    }
+
+    public void setSource(List<DataFragment> fragments) {
+        if (fragments == this.fragments)
+            return;
+
+        if (totalItemCount > 0)
+            notifyItemRangeRemoved(0, totalItemCount);
+        this.fragments = fragments;
+        this.fragmentListeners = new ArrayList<>(fragments.size());
+        this.startIndexes = new ArrayList<>(fragments.size() + 1);
         startIndexes.add(0);
+        for (int i = 0; i < fragments.size(); i++) {
+            DataFragment fragment = fragments.get(i);
+            int itemCount = fragments.get(i).getItemCount();
+            totalItemCount += itemCount;
+            ChildListener listener = new ChildListener(fragment, i);
+            fragmentListeners.add(listener);
+            fragment.addListener(listener);
+            startIndexes.add(totalItemCount);
+        }
+        firstInvalidStartIndex = fragments.size() + 1;
+        if (totalItemCount > 0)
+            notifyItemRangeInserted(0, totalItemCount);
+    }
+
+    // helper method to call the list's add method
+    public <T> DataMerger add(DataFragment<T> fragment) {
+        fragments.add(fragment);
+        notifyFragmentInserted(fragments.size() - 1);
+        return this;
     }
 
     private int getStartIndex(int pos) {
@@ -30,8 +68,11 @@ public class DataMerger extends BaseDataFragment {
             firstInvalidStartIndex = firstPos;
     }
 
-    public DataFragment get(int index) {
-        return fragments.get(index);
+
+    @VisibleForTesting
+    public List<Integer> getStartIndexes() {
+        getStartIndex(fragments.size()); // make sure all sizes are computed
+        return startIndexes;
     }
 
     public int getFragmentAt(int index) {
@@ -49,17 +90,12 @@ public class DataMerger extends BaseDataFragment {
         return a;
     }
 
-    public <T> DataMerger add(DataFragment<T> fragment) {
-        add(fragments.size(), fragment);
-        return this;
-    }
-
-    public <T> void add(int index, DataFragment<T> fragment) {
-        ChildListener listener = new ChildListener(index);
-        fragments.add(index, fragment);
+    public void notifyFragmentInserted(int index) {
+        DataFragment fragment = fragments.get(index);
+        ChildListener listener = new ChildListener(fragment, index);
         fragmentListeners.add(index, listener);
         for (int i = index + 1; i < fragmentListeners.size(); i++)
-            ++fragmentListeners.get(i).index;
+            fragmentListeners.get(i).index = i;
         int count = fragment.getItemCount();
         startIndexes.add(-1);
         invalidateStartIndex(index + 1);
@@ -68,18 +104,60 @@ public class DataMerger extends BaseDataFragment {
         fragment.addListener(listener);
     }
 
-    public DataFragment remove(int index) {
-        DataFragment fragment = fragments.remove(index);
+    public void notifyFragmentRangeInserted(int index, int count) {
+        if (count == 1) {
+            notifyFragmentInserted(index);
+            return;
+        }
+        ChildListener[] listeners = new ChildListener[count];
+        int itemCount = 0;
+        for (int i = 0; i < count; i++) {
+            DataFragment fragment = fragments.get(i + index);
+            listeners[i] = new ChildListener(fragment, i + index);
+            itemCount += fragment.getItemCount();
+            fragment.addListener(listeners[i]);
+        }
+        fragmentListeners.addAll(index, Arrays.asList(listeners));
+        for (int i = index + count; i < fragmentListeners.size(); i++)
+            fragmentListeners.get(i).index = i;
+        for (int i = 0; i < count; i++)
+            startIndexes.add(-1);
+        invalidateStartIndex(index + 1);
+        totalItemCount += itemCount;
+        notifyItemRangeInserted(getStartIndex(index), itemCount);
+    }
+
+    public void notifyFragmentRemoved(int index) {
         ChildListener listener = fragmentListeners.remove(index);
-        fragment.removeListener(listener);
+        listener.fragment.removeListener(listener);
         for (int i = index; i < fragmentListeners.size(); i++)
             --fragmentListeners.get(i).index;
-        int count = fragment.getItemCount();
+        int count = listener.fragment.getItemCount();
         startIndexes.remove(startIndexes.size() - 1);
         invalidateStartIndex(index + 1);
         totalItemCount -= count;
         notifyItemRangeRemoved(getStartIndex(index), count);
-        return fragment;
+    }
+
+    public void notifyFragmentRangeRemoved(int index, int count) {
+        if (count == 1) {
+            notifyFragmentRemoved(index);
+            return;
+        }
+        int itemCount = 0;
+        List<ChildListener> rangeListeners = fragmentListeners.subList(index, index + count);
+        for (int i = 0; i < count; i++) {
+            ChildListener listener = rangeListeners.get(i);
+            listener.fragment.removeListener(listener);
+            itemCount += listener.fragment.getItemCount();
+        }
+        rangeListeners.clear();
+        for (int i = index; i < fragmentListeners.size(); i++)
+            fragmentListeners.get(i).index = i;
+        startIndexes.subList(startIndexes.size() - count, startIndexes.size()).clear();
+        invalidateStartIndex(index + 1);
+        totalItemCount -= count;
+        notifyItemRangeRemoved(getStartIndex(index), count);
     }
 
     @Override
@@ -101,20 +179,24 @@ public class DataMerger extends BaseDataFragment {
 
     private class ChildListener implements Listener {
 
+        private DataFragment fragment;
         private int index;
 
-        public ChildListener(int index) {
+        public ChildListener(DataFragment fragment, int index) {
+            this.fragment = fragment;
             this.index = index;
         }
 
         @Override
         public void onItemRangeInserted(DataFragment fragment, int index, int count) {
             notifyItemRangeInserted(getStartIndex(this.index) + index, count);
+            invalidateStartIndex(this.index + 1);
         }
 
         @Override
         public void onItemRangeRemoved(DataFragment fragment, int index, int count) {
             notifyItemRangeRemoved(getStartIndex(this.index) + index, count);
+            invalidateStartIndex(this.index + 1);
         }
 
         @Override
