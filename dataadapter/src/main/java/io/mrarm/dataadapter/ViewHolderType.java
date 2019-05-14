@@ -25,21 +25,21 @@ public abstract class ViewHolderType<T> {
         return id;
     }
 
-    public abstract ViewHolder<T> createHolder(Context context, ViewGroup parent);
+    public abstract ViewHolder<T, ?> createHolder(Context context, ViewGroup parent);
 
 
 
     public static <T> ViewHolderType<T> from(final ViewHolderFactory<T> factory) {
         return new ViewHolderType<T>() {
             @Override
-            public ViewHolder<T> createHolder(Context context, ViewGroup parent) {
+            public ViewHolder<T, ?> createHolder(Context context, ViewGroup parent) {
                 return factory.createHolder(context, parent);
             }
         };
     }
 
     public interface ViewHolderFactory<T> {
-        ViewHolder<T> createHolder(Context context, ViewGroup parent);
+        ViewHolder<T, ?> createHolder(Context context, ViewGroup parent);
     }
 
 }

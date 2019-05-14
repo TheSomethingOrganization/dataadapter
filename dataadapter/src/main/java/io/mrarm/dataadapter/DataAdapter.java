@@ -23,7 +23,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //noinspection unchecked
-        holder.bind(fragment.getItem(position));
+        holder.bind(fragment.getItem(position), fragment.getContext(position));
     }
 
     @Override

@@ -7,6 +7,8 @@ public interface DataFragment<T> {
 
     T getItem(int index);
 
+    Object getContext(int index);
+
     ViewHolderType<T> getHolderTypeFor(int index);
 
 

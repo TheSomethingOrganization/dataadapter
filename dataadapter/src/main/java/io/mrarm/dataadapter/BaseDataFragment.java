@@ -6,6 +6,7 @@ import java.util.List;
 public abstract class BaseDataFragment<T> implements DataFragment<T> {
 
     private final List<Listener> listeners = new ArrayList<>();
+    private Object context;
 
     @Override
     public void addListener(Listener listener) {
@@ -15,6 +16,15 @@ public abstract class BaseDataFragment<T> implements DataFragment<T> {
     @Override
     public void removeListener(Listener listener) {
         listeners.remove(listener);
+    }
+
+    public void setContext(Object context) {
+        this.context = context;
+    }
+
+    @Override
+    public Object getContext(int index) {
+        return context;
     }
 
     protected void notifyItemRangeInserted(int index, int count) {

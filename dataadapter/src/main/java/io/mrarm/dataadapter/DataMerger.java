@@ -172,6 +172,15 @@ public class DataMerger extends BaseDataFragment {
     }
 
     @Override
+    public Object getContext(int index) {
+        int fragment = getFragmentAt(index);
+        Object ret = fragments.get(fragment).getContext(index - startIndexes.get(fragment));
+        if (ret != null)
+            return ret;
+        return super.getContext(index);
+    }
+
+    @Override
     public ViewHolderType getHolderTypeFor(int index) {
         int fragment = getFragmentAt(index);
         return fragments.get(fragment).getHolderTypeFor(index - startIndexes.get(fragment));
