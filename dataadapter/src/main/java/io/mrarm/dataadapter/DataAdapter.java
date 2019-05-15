@@ -9,20 +9,26 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private DataFragment fragment;
     private int attachCount = 0;
+    private boolean autoBindFragment = false;
 
-    public void setSource(DataFragment fragment) {
-        if (this.fragment != null && attachCount > 0)
+    public void setSource(DataFragment fragment, boolean autoBindFragment) {
+        if (this.fragment != null && attachCount > 0 && this.autoBindFragment)
             this.fragment.unbind();
         this.fragment = fragment;
-        if (attachCount > 0)
+        this.autoBindFragment = autoBindFragment;
+        if (attachCount > 0 && autoBindFragment)
             fragment.bind();
         notifyDataSetChanged();
+    }
+
+    public void setSource(DataFragment fragment) {
+        setSource(fragment, true);
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         if (--attachCount == 0) {
-            if (fragment != null)
+            if (fragment != null && autoBindFragment)
                 fragment.unbind();
         }
     }
@@ -30,7 +36,7 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         if (attachCount++ == 0) {
-            if (fragment != null)
+            if (fragment != null && autoBindFragment)
                 fragment.bind();
         }
     }
