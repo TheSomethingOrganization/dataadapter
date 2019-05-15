@@ -88,7 +88,7 @@ public class ListData<T> extends BaseDataFragment<T> {
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return oldListItemCount;
     }
 
     @Override
@@ -141,6 +141,7 @@ public class ListData<T> extends BaseDataFragment<T> {
                 notifyItemRangeInserted(oldListItemCount, newItemCount - oldListItemCount);
             else if (newItemCount < oldListItemCount)
                 notifyItemRangeRemoved(newItemCount, oldListItemCount - newItemCount);
+            oldListItemCount = newItemCount;
         }
 
         @Override
