@@ -1,25 +1,77 @@
 package io.mrarm.dataadapter;
 
+import androidx.databinding.ObservableList;
+
 import java.util.List;
 
 public class ListData<T> extends BaseDataFragment<T> {
 
-    private List<T> list;
+    private List<? extends T> list;
+    private int oldListItemCount = 0;
     private ListViewHolderTypeResolver<T> viewHolderTypeResolver;
+    private ObservableListListener listListener;
 
-    public ListData(List<T> list, ListViewHolderTypeResolver<T> typeResolver) {
-        this.list = list;
-        viewHolderTypeResolver = typeResolver;
+    public ListData(List<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
+        setSource(list, typeResolver);
     }
 
-    public ListData(List<T> list, ViewHolderTypeResolver<T> typeResolver) {
-        this.list = list;
-        viewHolderTypeResolver = (i, value) -> typeResolver.resolveType(value);
+    public ListData(List<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
+        setSource(list, typeResolver);
     }
 
-    public ListData(List<T> list, ViewHolderType<T> type) {
+    public ListData(List<? extends T> list, ViewHolderType<T> type) {
+        setSource(list, type);
+    }
+
+    public ListData(ObservableList<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
+        setSource(list, typeResolver);
+    }
+
+    public ListData(ObservableList<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
+        setSource(list, typeResolver);
+    }
+
+    public ListData(ObservableList<? extends T> list, ViewHolderType<T> type) {
+        setSource(list, type);
+    }
+
+
+    public void setSource(List<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
+        if (oldListItemCount > 0)
+            notifyItemRangeRemoved(0, oldListItemCount);
+        if (listListener != null) {
+            //noinspection unchecked
+            ((ObservableList<? extends T>) this.list).removeOnListChangedCallback(listListener);
+            listListener = null;
+        }
         this.list = list;
-        viewHolderTypeResolver = (i, value) -> type;
+        this.viewHolderTypeResolver = typeResolver;
+        oldListItemCount = list.size();
+        notifyItemRangeInserted(0, oldListItemCount);
+    }
+
+    public void setSource(List<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
+        setSource(list, (i, value) -> typeResolver.resolveType(value));
+    }
+
+    public void setSource(List<? extends T> list, ViewHolderType<T> type) {
+        setSource(list, (i, value) -> type);
+    }
+
+
+    public void setSource(ObservableList<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
+        setSource((List<? extends T>) list, typeResolver);
+        listListener = new ObservableListListener();
+        //noinspection unchecked
+        list.addOnListChangedCallback(listListener);
+    }
+
+    public void setSource(ObservableList<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
+        setSource(list, (i, value) -> typeResolver.resolveType(value));
+    }
+
+    public void setSource(ObservableList<? extends T> list, ViewHolderType<T> type) {
+        setSource(list, (i, value) -> type);
     }
 
 
@@ -54,6 +106,42 @@ public class ListData<T> extends BaseDataFragment<T> {
 
     public void notifyItemRangeMoved(int index, int toIndex, int count) {
         super.notifyItemRangeMoved(index, toIndex, count);
+    }
+
+    private class ObservableListListener extends ObservableList.OnListChangedCallback {
+
+        @Override
+        public void onChanged(ObservableList sender) {
+            int newItemCount = list.size();
+            notifyItemRangeChanged(0, Math.min(oldListItemCount, newItemCount));
+            if (newItemCount > oldListItemCount)
+                notifyItemRangeInserted(oldListItemCount, newItemCount - oldListItemCount);
+            else if (newItemCount < oldListItemCount)
+                notifyItemRangeRemoved(newItemCount, oldListItemCount - newItemCount);
+        }
+
+        @Override
+        public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+            notifyItemRangeChanged(positionStart, itemCount);
+        }
+
+        @Override
+        public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+            oldListItemCount += itemCount;
+            notifyItemRangeInserted(positionStart, itemCount);
+        }
+
+        @Override
+        public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+            notifyItemRangeMoved(fromPosition, toPosition, itemCount);
+        }
+
+        @Override
+        public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+            oldListItemCount -= itemCount;
+            notifyItemRangeRemoved(positionStart, itemCount);
+        }
+
     }
 
 }
