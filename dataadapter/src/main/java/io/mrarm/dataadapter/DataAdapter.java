@@ -25,6 +25,10 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
         setSource(fragment, true);
     }
 
+    public DataFragment getSource() {
+        return fragment;
+    }
+
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         if (--attachCount == 0) {
