@@ -7,6 +7,7 @@ public abstract class BaseDataFragment<T> implements DataFragment<T> {
 
     private final List<Listener> listeners = new ArrayList<>();
     private Object context;
+    private int refCount = 0;
 
     @Override
     public void addListener(Listener listener) {
@@ -16,6 +17,39 @@ public abstract class BaseDataFragment<T> implements DataFragment<T> {
     @Override
     public void removeListener(Listener listener) {
         listeners.remove(listener);
+    }
+
+    @Override
+    public void bind() {
+        if (refCount++ == 0)
+            onBind();
+    }
+
+    @Override
+    public void unbind() {
+        if (--refCount == 0)
+            onUnbind();
+    }
+
+    /**
+     * Called when the first ref has been bound (after all refs have been unbound before or no refs
+     * have been bound before at all).
+     */
+    protected void onBind() {
+    }
+
+    /**
+     * Called when all refs have been unbound.
+     */
+    protected void onUnbind() {
+    }
+
+    /**
+     * Checks whether we have at least a single ref (bind() has been called more times than unbind())
+     * @return whether we have at least a single bind ref
+     */
+    protected final boolean isBound() {
+        return refCount > 0;
     }
 
     public void setContext(Object context) {

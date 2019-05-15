@@ -186,6 +186,18 @@ public class DataMerger extends BaseDataFragment {
         return fragments.get(fragment).getHolderTypeFor(index - startIndexes.get(fragment));
     }
 
+    @Override
+    protected void onBind() {
+        for (DataFragment f : fragments)
+            f.bind();
+    }
+
+    @Override
+    protected void onUnbind() {
+        for (DataFragment f : fragments)
+            f.unbind();
+    }
+
     private class ChildListener implements Listener {
 
         private DataFragment fragment;

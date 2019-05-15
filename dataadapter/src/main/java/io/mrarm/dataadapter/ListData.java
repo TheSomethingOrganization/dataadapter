@@ -35,10 +35,14 @@ public class ListData<T> extends BaseDataFragment<T> {
         setSource(list, type);
     }
 
-
-    public void setSource(List<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
+    private void updateItemCounts() {
         if (oldListItemCount > 0)
             notifyItemRangeRemoved(0, oldListItemCount);
+        oldListItemCount = list.size();
+        notifyItemRangeInserted(0, oldListItemCount);
+    }
+
+    public void setSource(List<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
         if (listListener != null) {
             //noinspection unchecked
             ((ObservableList<? extends T>) this.list).removeOnListChangedCallback(listListener);
@@ -46,8 +50,8 @@ public class ListData<T> extends BaseDataFragment<T> {
         }
         this.list = list;
         this.viewHolderTypeResolver = typeResolver;
-        oldListItemCount = list.size();
-        notifyItemRangeInserted(0, oldListItemCount);
+        if (isBound())
+            updateItemCounts();
     }
 
     public void setSource(List<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
@@ -62,8 +66,10 @@ public class ListData<T> extends BaseDataFragment<T> {
     public void setSource(ObservableList<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
         setSource((List<? extends T>) list, typeResolver);
         listListener = new ObservableListListener();
-        //noinspection unchecked
-        list.addOnListChangedCallback(listListener);
+        if (isBound()) {
+            //noinspection unchecked
+            list.addOnListChangedCallback(listListener);
+        }
     }
 
     public void setSource(ObservableList<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
@@ -88,6 +94,23 @@ public class ListData<T> extends BaseDataFragment<T> {
     @Override
     public ViewHolderType<T> getHolderTypeFor(int index) {
         return viewHolderTypeResolver.resolveType(index, list.get(index));
+    }
+
+    @Override
+    protected void onBind() {
+        updateItemCounts();
+        if (listListener != null) {
+            //noinspection unchecked
+            ((ObservableList<? extends T>) this.list).addOnListChangedCallback(listListener);
+        }
+    }
+
+    @Override
+    protected void onUnbind() {
+        if (listListener != null) {
+            //noinspection unchecked
+            ((ObservableList<? extends T>) this.list).removeOnListChangedCallback(listListener);
+        }
     }
 
     // export the notify methods

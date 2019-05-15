@@ -2,6 +2,11 @@ package io.mrarm.dataadapter;
 
 public interface DataFragment<T> {
 
+    void bind();
+
+    void unbind();
+
+
     int getItemCount();
 
 
