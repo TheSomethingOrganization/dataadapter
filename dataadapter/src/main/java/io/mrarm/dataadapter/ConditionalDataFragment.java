@@ -3,6 +3,8 @@ package io.mrarm.dataadapter;
 import androidx.databinding.Observable;
 import androidx.databinding.ObservableBoolean;
 
+import io.mrarm.observabletransform.Bindable;
+
 public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
 
     private ObservableBoolean condition;
@@ -21,6 +23,8 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
         wrapped.bind();
         wrapped.addListener(listener);
         condition.addOnPropertyChangedCallback(listener);
+        if (condition instanceof Bindable)
+            ((Bindable) condition).bind();
     }
 
     @Override
@@ -28,6 +32,8 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
         wrapped.removeListener(listener);
         wrapped.unbind();
         condition.removeOnPropertyChangedCallback(listener);
+        if (condition instanceof Bindable)
+            ((Bindable) condition).unbind();
     }
 
     private void onChanged() {

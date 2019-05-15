@@ -35,6 +35,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.databinding:databinding-common:3.4.0'
+    implementation 'androidx.databinding:databinding-runtime:3.4.0'
+    implementation 'com.github.mcmrarm:observabletransform:master-SNAPSHOT'
     implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha05'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
