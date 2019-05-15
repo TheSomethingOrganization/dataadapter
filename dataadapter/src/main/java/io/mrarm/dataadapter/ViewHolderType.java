@@ -38,6 +38,10 @@ public abstract class ViewHolderType<T> {
         };
     }
 
+    public static <T> DataBindingViewHolderType.Builder<T> fromDataBinding(int layoutId) {
+        return new DataBindingViewHolderType.Builder<>(layoutId);
+    }
+
     public interface ViewHolderFactory<T> {
         ViewHolder<T, ?> createHolder(Context context, ViewGroup parent);
     }
