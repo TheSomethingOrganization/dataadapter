@@ -156,7 +156,7 @@ public class DataMerger extends BaseDataFragment {
             fragmentListeners.get(i).index = i;
         startIndexes.subList(startIndexes.size() - count, startIndexes.size()).clear();
         invalidateStartIndex(index + 1);
-        totalItemCount -= count;
+        totalItemCount -= itemCount;
         notifyItemRangeRemoved(getStartIndex(index), count);
     }
 
