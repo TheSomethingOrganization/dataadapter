@@ -198,12 +198,14 @@ public class DataMerger extends BaseDataFragment {
 
         @Override
         public void onItemRangeInserted(DataFragment fragment, int index, int count) {
+            totalItemCount += count;
             notifyItemRangeInserted(getStartIndex(this.index) + index, count);
             invalidateStartIndex(this.index + 1);
         }
 
         @Override
         public void onItemRangeRemoved(DataFragment fragment, int index, int count) {
+            totalItemCount -= count;
             notifyItemRangeRemoved(getStartIndex(this.index) + index, count);
             invalidateStartIndex(this.index + 1);
         }
