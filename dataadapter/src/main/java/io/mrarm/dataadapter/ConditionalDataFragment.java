@@ -25,6 +25,7 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
         condition.addOnPropertyChangedCallback(listener);
         if (condition instanceof Bindable)
             ((Bindable) condition).bind();
+        onChanged();
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
 
     @Override
     public int getItemCount() {
-        return condition.get() ? wrapped.getItemCount() : 0;
+        return oldCondition ? wrapped.getItemCount() : 0;
     }
 
     @Override
