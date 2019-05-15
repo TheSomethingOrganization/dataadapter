@@ -31,17 +31,17 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        if (--attachCount == 0) {
+        if (attachCount++ == 0) {
             if (fragment != null && autoBindFragment)
-                fragment.unbind();
+                fragment.bind();
         }
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        if (attachCount++ == 0) {
+        if (--attachCount == 0) {
             if (fragment != null && autoBindFragment)
-                fragment.bind();
+                fragment.unbind();
         }
     }
 
