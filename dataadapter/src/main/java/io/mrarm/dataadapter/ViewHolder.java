@@ -13,4 +13,7 @@ public abstract class ViewHolder<T, CT> extends RecyclerView.ViewHolder {
 
     public abstract void bind(T value, CT context);
 
+    public void unbind() {
+    }
+
 }

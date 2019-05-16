@@ -34,6 +34,8 @@ public final class DataBindingViewHolder<T, CT> extends ViewHolder<T, CT> {
         binding.executePendingBindings();
     }
 
-
-
+    @Override
+    public void unbind() {
+        binding.unbind();
+    }
 }

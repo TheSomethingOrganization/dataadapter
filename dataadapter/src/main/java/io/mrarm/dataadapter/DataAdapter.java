@@ -58,6 +58,11 @@ public class DataAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        holder.unbind();
+    }
+
+    @Override
     public int getItemCount() {
         return fragment.getItemCount();
     }
