@@ -37,9 +37,9 @@ public class ListData<T> extends BaseDataFragment<T> {
 
     private void updateItemCounts() {
         if (oldListItemCount > 0)
-            notifyItemRangeRemoved(0, oldListItemCount);
+            super.notifyItemRangeRemoved(0, oldListItemCount);
         oldListItemCount = list.size();
-        notifyItemRangeInserted(0, oldListItemCount);
+        super.notifyItemRangeInserted(0, oldListItemCount);
     }
 
     public void setSource(List<? extends T> list, ListViewHolderTypeResolver<T> typeResolver) {
@@ -50,8 +50,7 @@ public class ListData<T> extends BaseDataFragment<T> {
         }
         this.list = list;
         this.viewHolderTypeResolver = typeResolver;
-        if (isBound())
-            updateItemCounts();
+        updateItemCounts();
     }
 
     public void setSource(List<? extends T> list, ViewHolderTypeResolver<T> typeResolver) {
@@ -120,10 +119,12 @@ public class ListData<T> extends BaseDataFragment<T> {
     }
 
     public void notifyItemRangeInserted(int index, int count) {
+        oldListItemCount += count;
         super.notifyItemRangeInserted(index, count);
     }
 
     public void notifyItemRangeRemoved(int index, int count) {
+        oldListItemCount -= count;
         super.notifyItemRangeRemoved(index, count);
     }
 
@@ -138,9 +139,9 @@ public class ListData<T> extends BaseDataFragment<T> {
             int newItemCount = list.size();
             notifyItemRangeChanged(0, Math.min(oldListItemCount, newItemCount));
             if (newItemCount > oldListItemCount)
-                notifyItemRangeInserted(oldListItemCount, newItemCount - oldListItemCount);
+                ListData.super.notifyItemRangeInserted(oldListItemCount, newItemCount - oldListItemCount);
             else if (newItemCount < oldListItemCount)
-                notifyItemRangeRemoved(newItemCount, oldListItemCount - newItemCount);
+                ListData.super.notifyItemRangeRemoved(newItemCount, oldListItemCount - newItemCount);
             oldListItemCount = newItemCount;
         }
 
@@ -151,7 +152,6 @@ public class ListData<T> extends BaseDataFragment<T> {
 
         @Override
         public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
-            oldListItemCount += itemCount;
             notifyItemRangeInserted(positionStart, itemCount);
         }
 
@@ -162,7 +162,6 @@ public class ListData<T> extends BaseDataFragment<T> {
 
         @Override
         public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
-            oldListItemCount -= itemCount;
             notifyItemRangeRemoved(positionStart, itemCount);
         }
 

@@ -101,7 +101,8 @@ public class DataMergerTest {
         assertEquals(1, (int) merger.getStartIndexes().get(1));
         assertEquals(53, (int) merger.getStartIndexes().get(2));
 
-        assertEquals(50 + 2, merger.getItemCount());
+        assertEquals(50 + 2, testData.getItemCount());
+        assertEquals(50 + 2 + 2, merger.getItemCount());
         assertEquals("Header", merger.getItem(0));
         assertEquals("Footer", merger.getItem(51 + 2));
         for (int i = 0; i < 52; i++)
