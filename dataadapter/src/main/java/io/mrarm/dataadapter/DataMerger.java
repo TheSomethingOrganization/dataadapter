@@ -1,10 +1,17 @@
 package io.mrarm.dataadapter;
 
+import android.util.Log;
+
 import androidx.annotation.VisibleForTesting;
+import androidx.databinding.ObservableList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import io.mrarm.observabletransform.Bindable;
+import io.mrarm.observabletransform.ObservableLists;
+import io.mrarm.observabletransform.TransformFunction;
 
 
 public class DataMerger extends BaseDataFragment {
@@ -14,37 +21,52 @@ public class DataMerger extends BaseDataFragment {
     private List<Integer> startIndexes;
     private int firstInvalidStartIndex;
     private int totalItemCount = 0;
+    private ObservableListListener listListener;
 
     public DataMerger(List<DataFragment> fragments) {
         setSource(fragments);
+    }
+
+    public DataMerger(ObservableList<DataFragment> fragments) {
+        setSource(fragments);
+    }
+
+    public <T> DataMerger(ObservableList<T> fragments, TransformFunction<T, DataFragment> f) {
+        setSource(ObservableLists.transform(fragments, f));
     }
 
     public DataMerger() {
         this(new ArrayList<>());
     }
 
+    private void setSourceImpl(List<DataFragment> fragments) {
+        if (listListener != null) {
+            //noinspection unchecked
+            ((ObservableList<DataFragment>) this.fragments).removeOnListChangedCallback(listListener);
+            listListener = null;
+
+            if (this.fragments instanceof Bindable && isBound())
+                ((Bindable) this.fragments).unbind();
+        }
+        this.fragments = fragments;
+    }
+
     public void setSource(List<DataFragment> fragments) {
         if (fragments == this.fragments)
             return;
+        setSourceImpl(fragments);
+        notifyFragmentListChanged();
+    }
 
-        if (totalItemCount > 0)
-            notifyItemRangeRemoved(0, totalItemCount);
-        this.fragments = fragments;
-        this.fragmentListeners = new ArrayList<>(fragments.size());
-        this.startIndexes = new ArrayList<>(fragments.size() + 1);
-        startIndexes.add(0);
-        for (int i = 0; i < fragments.size(); i++) {
-            DataFragment fragment = fragments.get(i);
-            int itemCount = fragments.get(i).getItemCount();
-            totalItemCount += itemCount;
-            ChildListener listener = new ChildListener(fragment, i);
-            fragmentListeners.add(listener);
-            fragment.addListener(listener);
-            startIndexes.add(totalItemCount);
-        }
-        firstInvalidStartIndex = fragments.size() + 1;
-        if (totalItemCount > 0)
-            notifyItemRangeInserted(0, totalItemCount);
+    public void setSource(ObservableList<DataFragment> fragments) {
+        if (fragments == this.fragments)
+            return;
+        setSourceImpl(fragments);
+        listListener = new ObservableListListener();
+        fragments.addOnListChangedCallback(listListener);
+        if (fragments instanceof Bindable && isBound())
+            ((Bindable) fragments).bind();
+        notifyFragmentListChanged();
     }
 
     // helper method to call the list's add method
@@ -88,6 +110,26 @@ public class DataMerger extends BaseDataFragment {
                 a = c;
         }
         return a;
+    }
+
+    public void notifyFragmentListChanged() {
+        if (totalItemCount > 0)
+            notifyItemRangeRemoved(0, totalItemCount);
+        this.fragmentListeners = new ArrayList<>(fragments.size());
+        this.startIndexes = new ArrayList<>(fragments.size() + 1);
+        startIndexes.add(0);
+        for (int i = 0; i < fragments.size(); i++) {
+            DataFragment fragment = fragments.get(i);
+            int itemCount = fragments.get(i).getItemCount();
+            totalItemCount += itemCount;
+            ChildListener listener = new ChildListener(fragment, i);
+            fragmentListeners.add(listener);
+            fragment.addListener(listener);
+            startIndexes.add(totalItemCount);
+        }
+        firstInvalidStartIndex = fragments.size() + 1;
+        if (totalItemCount > 0)
+            notifyItemRangeInserted(0, totalItemCount);
     }
 
     public void notifyFragmentInserted(int index) {
@@ -160,6 +202,22 @@ public class DataMerger extends BaseDataFragment {
         notifyItemRangeRemoved(getStartIndex(index), count);
     }
 
+    public void notifyFragmentChanged(int index) {
+        ChildListener listener = fragmentListeners.get(index);
+        if (listener.fragment == fragments.get(index))
+            return;
+        int removeCount = listener.fragment.getItemCount();
+        listener.fragment.removeListener(listener);
+        listener.fragment = fragments.get(index);
+        listener.fragment.addListener(listener);
+        int addCount = listener.fragment.getItemCount();
+
+        invalidateStartIndex(index + 1);
+        totalItemCount += addCount - removeCount;
+        notifyItemRangeRemoved(getStartIndex(index), removeCount);
+        notifyItemRangeInserted(getStartIndex(index), addCount);
+    }
+
     @Override
     public int getItemCount() {
         return totalItemCount;
@@ -190,12 +248,47 @@ public class DataMerger extends BaseDataFragment {
     protected void onBind() {
         for (DataFragment f : fragments)
             f.bind();
+        if (listListener != null && fragments instanceof Bindable)
+            ((Bindable) fragments).bind();
     }
 
     @Override
     protected void onUnbind() {
         for (DataFragment f : fragments)
             f.unbind();
+        if (listListener != null && fragments instanceof Bindable)
+            ((Bindable) fragments).unbind();
+    }
+
+    private class ObservableListListener extends ObservableList.OnListChangedCallback<ObservableList<DataFragment>> {
+
+        @Override
+        public void onChanged(ObservableList<DataFragment> sender) {
+            notifyFragmentListChanged();
+        }
+
+        @Override
+        public void onItemRangeChanged(ObservableList<DataFragment> sender, int positionStart, int itemCount) {
+            for (int i = 0; i < itemCount; i++)
+                notifyFragmentChanged(positionStart + i);
+        }
+
+        @Override
+        public void onItemRangeInserted(ObservableList<DataFragment> sender, int positionStart, int itemCount) {
+            notifyFragmentRangeInserted(positionStart, itemCount);
+        }
+
+        @Override
+        public void onItemRangeMoved(ObservableList<DataFragment> sender, int fromPosition, int toPosition, int itemCount) {
+            onItemRangeRemoved(sender, fromPosition, itemCount);
+            onItemRangeInserted(sender, toPosition, itemCount);
+        }
+
+        @Override
+        public void onItemRangeRemoved(ObservableList<DataFragment> sender, int positionStart, int itemCount) {
+            notifyFragmentRangeRemoved(positionStart, itemCount);
+        }
+
     }
 
     private class ChildListener implements Listener {
