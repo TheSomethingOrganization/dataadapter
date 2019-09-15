@@ -39,6 +39,10 @@ public class DataMerger extends BaseDataFragment {
         this(new ArrayList<>());
     }
 
+    public List<DataFragment> getSource() {
+        return fragments;
+    }
+
     private void setSourceImpl(List<DataFragment> fragments) {
         if (listListener != null) {
             //noinspection unchecked
