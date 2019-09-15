@@ -4,6 +4,8 @@ import androidx.databinding.ObservableList;
 
 import java.util.List;
 
+import io.mrarm.observabletransform.Bindable;
+
 public class ListData<T> extends BaseDataFragment<T> {
 
     private List<? extends T> list;
@@ -47,6 +49,8 @@ public class ListData<T> extends BaseDataFragment<T> {
             //noinspection unchecked
             ((ObservableList<? extends T>) this.list).removeOnListChangedCallback(listListener);
             listListener = null;
+            if (this.list instanceof Bindable)
+                ((Bindable) this.list).unbind();
         }
         this.list = list;
         this.viewHolderTypeResolver = typeResolver;
@@ -68,6 +72,9 @@ public class ListData<T> extends BaseDataFragment<T> {
         if (isBound()) {
             //noinspection unchecked
             list.addOnListChangedCallback(listListener);
+
+            if (list instanceof Bindable)
+                ((Bindable) list).bind();
         }
     }
 
@@ -97,11 +104,14 @@ public class ListData<T> extends BaseDataFragment<T> {
 
     @Override
     protected void onBind() {
-        updateItemCounts();
         if (listListener != null) {
             //noinspection unchecked
             ((ObservableList<? extends T>) this.list).addOnListChangedCallback(listListener);
+
+            if (list instanceof Bindable)
+                ((Bindable) list).bind();
         }
+        updateItemCounts();
     }
 
     @Override
@@ -109,6 +119,8 @@ public class ListData<T> extends BaseDataFragment<T> {
         if (listListener != null) {
             //noinspection unchecked
             ((ObservableList<? extends T>) this.list).removeOnListChangedCallback(listListener);
+            if (list instanceof Bindable)
+                ((Bindable) list).unbind();
         }
     }
 
