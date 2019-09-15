@@ -103,6 +103,14 @@ public class ListData<T> extends BaseDataFragment<T> {
     }
 
     @Override
+    public void buildElementPath(ElementPath.Builder builder, int index) {
+        // This might be a weird quirk to the ElementPath - however, because the ElementPath is
+        // going to be used to get relative positions of items, it makes sense to have the actual
+        // item in there, so it can be easily fetched.
+        builder.add(new ElementPath.SimpleElement(null, index));
+    }
+
+    @Override
     protected void onBind() {
         if (listListener != null) {
             //noinspection unchecked

@@ -257,6 +257,14 @@ public class DataMerger extends BaseDataFragment {
     }
 
     @Override
+    public void buildElementPath(ElementPath.Builder builder, int index) {
+        int fragment = getFragmentAt(index);
+        builder.add(new ElementPath.SimpleElement(fragments.get(fragment),
+                startIndexes.get(fragment)));
+        fragments.get(fragment).buildElementPath(builder, index - startIndexes.get(fragment));
+    }
+
+    @Override
     protected void onBind() {
         if (listListener != null && fragments instanceof Bindable)
             ((Bindable) fragments).bind();

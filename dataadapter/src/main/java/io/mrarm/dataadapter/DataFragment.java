@@ -16,6 +16,15 @@ public interface DataFragment<T> {
 
     ViewHolderType<T> getHolderTypeFor(int index);
 
+    void buildElementPath(ElementPath.Builder builder, int index);
+
+    default ElementPath getElementPath(int index) {
+        ElementPath.Builder builder = new ElementPath.Builder();
+        builder.add(new ElementPath.SimpleElement(this, 0)); // root
+        buildElementPath(builder, index);
+        return builder.build();
+    }
+
 
     void addListener(Listener listener);
 

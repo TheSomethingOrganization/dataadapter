@@ -41,6 +41,10 @@ public class SingleItemData<T> extends BaseDataFragment<T> {
         return holderType;
     }
 
+    @Override
+    public void buildElementPath(ElementPath.Builder builder, int index) {
+    }
+
     public void notifyChanged() {
         notifyItemRangeChanged(0, 1);
     }

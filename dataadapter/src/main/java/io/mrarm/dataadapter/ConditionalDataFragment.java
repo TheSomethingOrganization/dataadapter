@@ -68,6 +68,10 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
         return wrapped.getHolderTypeFor(index);
     }
 
+    @Override
+    public void buildElementPath(ElementPath.Builder builder, int index) {
+        wrapped.buildElementPath(builder, index);
+    }
 
     private class ObservableListener extends Observable.OnPropertyChangedCallback
             implements DataFragment.Listener {
