@@ -134,6 +134,8 @@ public class DataMerger extends BaseDataFragment {
 
     public void notifyFragmentInserted(int index) {
         DataFragment fragment = fragments.get(index);
+        if (isBound())
+            fragment.bind();
         ChildListener listener = new ChildListener(fragment, index);
         fragmentListeners.add(index, listener);
         for (int i = index + 1; i < fragmentListeners.size(); i++)
@@ -155,6 +157,8 @@ public class DataMerger extends BaseDataFragment {
         int itemCount = 0;
         for (int i = 0; i < count; i++) {
             DataFragment fragment = fragments.get(i + index);
+            if (isBound())
+                fragment.bind();
             listeners[i] = new ChildListener(fragment, i + index);
             itemCount += fragment.getItemCount();
             fragment.addListener(listeners[i]);
@@ -179,6 +183,8 @@ public class DataMerger extends BaseDataFragment {
         invalidateStartIndex(index + 1);
         totalItemCount -= count;
         notifyItemRangeRemoved(getStartIndex(index), count);
+        if (isBound())
+            listener.fragment.unbind();
     }
 
     public void notifyFragmentRangeRemoved(int index, int count) {
@@ -192,6 +198,8 @@ public class DataMerger extends BaseDataFragment {
             ChildListener listener = rangeListeners.get(i);
             listener.fragment.removeListener(listener);
             itemCount += listener.fragment.getItemCount();
+            if (isBound())
+                listener.fragment.unbind();
         }
         rangeListeners.clear();
         for (int i = index; i < fragmentListeners.size(); i++)
@@ -246,10 +254,10 @@ public class DataMerger extends BaseDataFragment {
 
     @Override
     protected void onBind() {
-        for (DataFragment f : fragments)
-            f.bind();
         if (listListener != null && fragments instanceof Bindable)
             ((Bindable) fragments).bind();
+        for (DataFragment f : fragments)
+            f.bind();
     }
 
     @Override
