@@ -28,26 +28,28 @@ public class ElementPath {
         return i;
     }
 
-    public int getIndex(int of, int relativeTo) {
+    public int getPosition(int of, int relativeTo) {
         if (of < 0)
             of = path.size() + of;
         if (relativeTo < 0)
             relativeTo = path.size() + relativeTo;
         int ret = 0;
         for (int i = relativeTo + 1; i <= of; i++)
-            ret += path.get(i).getIndex();
+            ret += path.get(i).getPosition();
         return ret;
     }
 
-    public int getIndex(int of, DataFragment relativeTo) {
+    public int getPosition(int of, DataFragment relativeTo) {
         int relativeToI = indexOf(relativeTo);
         if (relativeToI == -1)
             return -1;
-        return getIndex(of, relativeToI);
+        return getPosition(of, relativeToI);
     }
 
-    public int getLastPartIndex() {
-        return getIndex(-1, -2);
+    public int getIndexInParent(int of) {
+        if (of < 0)
+            of = path.size() + of;
+        return path.get(of).getIndex();
     }
 
 
@@ -74,16 +76,20 @@ public class ElementPath {
 
         int getIndex();
 
+        int getPosition();
+
     }
 
     public static class SimpleElement implements Element {
 
         private DataFragment fragment;
         private int index;
+        private int position;
 
-        public SimpleElement(DataFragment fragment, int index) {
+        public SimpleElement(DataFragment fragment, int index, int position) {
             this.fragment = fragment;
             this.index = index;
+            this.position = position;
         }
 
         @Override
@@ -96,6 +102,10 @@ public class ElementPath {
             return index;
         }
 
+        @Override
+        public int getPosition() {
+            return position;
+        }
     }
 
 }

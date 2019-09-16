@@ -260,7 +260,7 @@ public class DataMerger extends BaseDataFragment {
     public void buildElementPath(ElementPath.Builder builder, int index) {
         int fragment = getFragmentAt(index);
         builder.add(new ElementPath.SimpleElement(fragments.get(fragment),
-                startIndexes.get(fragment)));
+                fragment, startIndexes.get(fragment)));
         fragments.get(fragment).buildElementPath(builder, index - startIndexes.get(fragment));
     }
 

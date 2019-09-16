@@ -107,7 +107,7 @@ public class ListData<T> extends BaseDataFragment<T> {
         // This might be a weird quirk to the ElementPath - however, because the ElementPath is
         // going to be used to get relative positions of items, it makes sense to have the actual
         // item in there, so it can be easily fetched.
-        builder.add(new ElementPath.SimpleElement(null, index));
+        builder.add(new ElementPath.SimpleElement(null, index, index));
     }
 
     @Override

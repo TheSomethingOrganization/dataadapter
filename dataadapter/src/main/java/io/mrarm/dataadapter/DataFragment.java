@@ -20,7 +20,7 @@ public interface DataFragment<T> {
 
     default ElementPath getElementPath(int index) {
         ElementPath.Builder builder = new ElementPath.Builder();
-        builder.add(new ElementPath.SimpleElement(this, 0)); // root
+        builder.add(new ElementPath.SimpleElement(this, -1, 0)); // root
         buildElementPath(builder, index);
         return builder.build();
     }
