@@ -5,10 +5,14 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class DataBindingViewHolder<T, CT> extends ViewHolder<T, CT> {
 
     private final ViewDataBinding binding;
     private final DataBindingViewHolderType type;
+    private List<Runnable> unbindList;
 
     DataBindingViewHolder(@NonNull ViewDataBinding binding,
                           @NonNull DataBindingViewHolderType type) {
@@ -37,5 +41,17 @@ public final class DataBindingViewHolder<T, CT> extends ViewHolder<T, CT> {
     @Override
     public void unbind() {
         binding.unbind();
+        if (unbindList != null) {
+            for (Runnable r : unbindList)
+                r.run();
+            unbindList.clear();
+        }
     }
+
+    public void onUnbind(Runnable r) {
+        if (unbindList == null)
+            unbindList = new ArrayList<>();
+        unbindList.add(r);
+    }
+
 }
