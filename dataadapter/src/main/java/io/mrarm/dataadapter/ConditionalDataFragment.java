@@ -20,8 +20,8 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
 
     @Override
     protected void onBind() {
-        wrapped.bind();
         wrapped.addListener(listener);
+        wrapped.bind();
         condition.addOnPropertyChangedCallback(listener);
         if (condition instanceof Bindable)
             ((Bindable) condition).bind();
@@ -30,8 +30,8 @@ public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
 
     @Override
     protected void onUnbind() {
-        wrapped.removeListener(listener);
         wrapped.unbind();
+        wrapped.removeListener(listener);
         condition.removeOnPropertyChangedCallback(listener);
         if (condition instanceof Bindable)
             ((Bindable) condition).unbind();
