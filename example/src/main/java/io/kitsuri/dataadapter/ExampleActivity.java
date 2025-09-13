@@ -1,4 +1,4 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.mrarm.dataadapter.example.R;
+import io.kitsuri.dataadapter.example.R;
 
 public class ExampleActivity extends AppCompatActivity {
 

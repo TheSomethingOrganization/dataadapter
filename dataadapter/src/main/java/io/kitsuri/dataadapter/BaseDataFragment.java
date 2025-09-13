@@ -1,4 +1,4 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 import java.util.ArrayList;
 import java.util.List;

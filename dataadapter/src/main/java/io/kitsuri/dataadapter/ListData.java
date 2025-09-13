@@ -1,10 +1,10 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 import androidx.databinding.ObservableList;
 
 import java.util.List;
 
-import io.mrarm.observabletransform.Bindable;
+import io.kitsuri.observabletransform.Bindable;
 
 public class ListData<T> extends BaseDataFragment<T> {
 

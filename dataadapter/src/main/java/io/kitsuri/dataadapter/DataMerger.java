@@ -1,6 +1,4 @@
-package io.mrarm.dataadapter;
-
-import android.util.Log;
+package io.kitsuri.dataadapter;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.databinding.ObservableList;
@@ -9,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.mrarm.observabletransform.Bindable;
-import io.mrarm.observabletransform.ObservableLists;
-import io.mrarm.observabletransform.TransformFunction;
+import io.kitsuri.observabletransform.Bindable;
+import io.kitsuri.observabletransform.ObservableLists;
+import io.kitsuri.observabletransform.TransformFunction;
 
 
 public class DataMerger extends BaseDataFragment {

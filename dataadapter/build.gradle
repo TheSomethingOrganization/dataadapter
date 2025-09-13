@@ -1,13 +1,11 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'maven-publish'
 
-group = 'com.github.mcmrarm'
-version = 'master-SNAPSHOT'
+group = 'io.kitsuri'
+version = '1.0.0'
 
 android {
     compileSdkVersion 28
-
 
     defaultConfig {
         minSdkVersion 17
@@ -16,7 +14,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -25,42 +22,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
-    }
 
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.databinding:databinding-common:3.4.0'
-    implementation 'androidx.databinding:databinding-runtime:3.4.0'
-    implementation 'com.github.mcmrarm:observabletransform:master-SNAPSHOT'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha05'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-}
 
-afterEvaluate {
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId = 'com.github.mcmrarm'
-                artifactId = 'indicatorseekbar'
-                version = version
-
-                artifact("$buildDir/outputs/aar/dataadapter-debug.aar") {
-                    extension = 'aar'
-                }
-            }
-        }
-        repositories {
-            maven {
-                url = uri(System.getProperty("user.home") + "/.m2/repository") // Publishes to ~/.m2/repository
-            }
-        }
-    }
+    implementation 'androidx.appcompat:appcompat:1.4.2'        // older stable version
+    implementation 'androidx.activity:activity:1.5.1'          // older version compiled with Java 8/11
+    implementation 'androidx.annotation:annotation-experimental:1.3.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.databinding:databinding-common:8.13.0'
+    implementation 'androidx.databinding:databinding-runtime:8.13.0'
+    implementation "io.kitsuri:observabletransform:1.0.0"
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }

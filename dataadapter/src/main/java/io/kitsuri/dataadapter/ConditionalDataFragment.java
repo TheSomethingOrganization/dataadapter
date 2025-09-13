@@ -1,9 +1,9 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 import androidx.databinding.Observable;
 import androidx.databinding.ObservableBoolean;
 
-import io.mrarm.observabletransform.Bindable;
+import io.kitsuri.observabletransform.Bindable;
 
 public class ConditionalDataFragment<T> extends BaseDataFragment<T> {
 

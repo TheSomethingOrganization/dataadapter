@@ -1,4 +1,4 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 public interface ListViewHolderTypeResolver<T> {
 

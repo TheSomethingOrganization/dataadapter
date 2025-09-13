@@ -1,8 +1,6 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class ViewHolderTypeTest {
 

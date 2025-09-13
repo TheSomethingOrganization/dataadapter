@@ -1,4 +1,4 @@
-package io.mrarm.dataadapter;
+package io.kitsuri.dataadapter;
 
 public class SingleItemData<T> extends BaseDataFragment<T> {
 
